@@ -14,6 +14,6 @@ int main(){
   for(int i=0;i<2000;++i)c[i]=2.5e5+1.5e5*exp(-((double)i-1000)*((double)i-1000)/(2*35*35));
 
   Air.SetRho(a);Air.SetRhou(b);Air.SetEnergy(c);
-  Air.Evolution2("evolution1.run",5e-3,5);
+  Air.Evolution1c("evolution1.run",5e-3,5);
 
 }
