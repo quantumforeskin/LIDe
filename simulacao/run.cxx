@@ -8,12 +8,12 @@ int main(){
   for(int i=0;i<250;++i)a[i]=1.2754;
 
   long double *b=new long double[250];
-  for(int i=0;i<250;++i)b[i]=12.754*exp(-((long double)i-250)*((long double)i-250)/(2*10*10));
+  for(int i=0;i<250;++i)b[i]=12.754*exp(-((long double)i-250)*((long double)i-250)/(2*50*50));
 
   long double *c=new long double[250];
   for(int i=0;i<250;++i)c[i]=2.5e5;
 
   Air.SetRho(a);Air.SetRhou(b);Air.SetEnergy(c);
-  Air.Evolution1("evolution1.run",5e-3,2);
+  Air.Evolution1("evolution1.run",1e-5,500);
 
 }

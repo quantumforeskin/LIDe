@@ -1,46 +1,46 @@
-set terminal gif animate delay 100
+set terminal gif animate delay 10
 set output "density.gif"
 
 set xlabel "x(m)"
 set ylabel "rho"
 
-n=9
+n=499
 
 set xrange [0:0.2]
-set yrange [0.7:6.5]
+set yrange [1.25:1.3]
 
 do for [i=0:n]{
   tm=i*0.01/199
   plot "evolution1.run" u 2:($1==i?$3:1/0) w lines t sprintf("%f",tm)
 }
 
-set terminal gif animate delay 100
+set terminal gif animate delay 10
 set output "momentum.gif"
 
 set ylabel "rhou"
-set yrange [-15:65]
+set yrange [0:15]
 
 do for [i=0:n]{
   tm=i*0.01/199
   plot "evolution1.run" u 2:($1==i?$4:1/0) w lines t sprintf("%f",tm)
 }
 
-set terminal gif animate delay 100
+set terminal gif animate delay 10
 set output "energy.gif"
 
 set ylabel "Energy"
-set yrange [120000:570000]
+set yrange [249000:251000]
 
 do for [i=0:n]{
   tm=i*0.01/199
   plot "evolution1.run" u 2:($1==i?$7:1/0) w lines t sprintf("%f",tm)
 }
 
-set terminal gif animate delay 100
+set terminal gif animate delay 10
 set output "pressure.gif"
 
 set ylabel "Pressure"
-set yrange [90000:120000]
+set yrange [99000:101000]
 
 do for [i=0:n]{
   tm=i*0.01/199
