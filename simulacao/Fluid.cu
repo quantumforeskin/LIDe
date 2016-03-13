@@ -36,7 +36,7 @@ __global__ void callcuda(float *cad, float *ct, float *cx, int *cnumber, float *
 }
 
 //___________________________________________________________
-void Fluid::Evolution1c(const char *output, double time, int nsteps){
+void Fluid::Evolution1c(const char *output, long double time, int nsteps){
 
  //  runs evolution of fluid through time with nsteps steps in time, 
  // writing the result into output, using simple numeric method
@@ -84,7 +84,7 @@ void Fluid::Evolution1c(const char *output, double time, int nsteps){
     if(cudaSuccess!=cudaMemcpy(crhow  ,rhow  ,numberx*sizeof(float),cudaMemcpyHostToDevice))cout<<"copytodevice"<<endl;
     if(cudaSuccess!=cudaMemcpy(cenergy,Energy,numberx*sizeof(float),cudaMemcpyHostToDevice))cout<<"copytodevice"<<endl;
 
-    int threadsize=64;// calculates evolution
+    //int threadsize=64;// calculates evolution
     callcuda<<<1,numberx>>>(cad,ct,cx,cnumber,caux1,caux2,caux3,caux4,caux5,crho,crhou,crhov,crhow,cenergy);
 
     /*  copies result into host  */

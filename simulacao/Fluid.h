@@ -11,47 +11,47 @@ class Fluid {
  public:
 
   /*  CONSTRUCTOR AND DESTRUCTOR  */
-  Fluid(double,int,double,double);
+  Fluid(long double,int,long double,long double);
   ~Fluid();
 
   /*  TIME EVOLUTION  */
-  void Evolution1(const char*,double,int);
-  void Evolution2(const char*,double,int);
-  void Evolution1c(const char*,double,int);
+  void Evolution1(const char*,long double,int);
+  void Evolution2(const char*,long double,int);
+  void Evolution1c(const char*,long double,int);
 
   /*  PHYSICAL VARIABLES  */
-  double* GetF(int) const;
-  double* GetG(int) const;
-  double* GetH(int) const;
-  double Pressure(int) const;
-  double* RoeAverage(int) const;
-  double* Eigenvalues(double*) const;
-  double** Eigenvectors(double*) const;
-  double* GetAlpha(int,double*) const;
-  double** GetWaves(double*,double**) const;
-  double* GetFb(int) const;
-  double* GetFt(int) const;
+  long double* GetF(int) const;
+  long double* GetG(int) const;
+  long double* GetH(int) const;
+  long double Pressure(int) const;
+  long double* RoeAverage(int) const;
+  long double* Eigenvalues(long double*) const;
+  long double** Eigenvectors(long double*) const;
+  long double* GetAlpha(int,long double*) const;
+  long double** GetWaves(long double*,long double**) const;
+  long double* GetFb(int) const;
+  long double* GetFt(int) const;
 
   /*  INTERNAL VARIABLE FUNCTIONS  */
-  double* GetEnergy() const;
-  double* GetRho() const;
-  double* GetRhou() const;
-  double* GetRhov() const;
-  double* GetRhow() const;
-  void SetEnergy(double*);
-  void SetRho(double*);
-  void SetRhou(double*);
-  void SetRhov(double*);
-  void SetRhow(double*);
+  long double* GetEnergy() const;
+  long double* GetRho() const;
+  long double* GetRhou() const;
+  long double* GetRhov() const;
+  long double* GetRhow() const;
+  void SetEnergy(long double*);
+  void SetRho(long double*);
+  void SetRhou(long double*);
+  void SetRhov(long double*);
+  void SetRhow(long double*);
 
  private:
 
-  double addiabatic;		// addiabatic constant
+  long double addiabatic;		// addiabatic constant
   int numberx;			// number of cells in x
-  double bottomx, upperx;	// limits in x
-  double *rho;			// density in cell
-  double *rhou, *rhov, *rhow;	// momentum in cell
-  double *Energy;		// energy in cell
+  long double bottomx, upperx;	// limits in x
+  long double *rho;			// density in cell
+  long double *rhou, *rhov, *rhow;	// momentum in cell
+  long double *Energy;		// energy in cell
 
 };
 
