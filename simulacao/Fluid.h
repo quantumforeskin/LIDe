@@ -17,6 +17,7 @@ class Fluid {
   /*  TIME EVOLUTION  */
   void Evolution1(const char*,long double,int);
   void Evolution2(const char*,long double,int);
+  void Evolution3(const char*,long double,int);
   void Evolution1c(const char*,long double,int);
 
   /*  PHYSICAL VARIABLES  */
