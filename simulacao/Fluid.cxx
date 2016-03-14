@@ -145,16 +145,15 @@ void Fluid::Evolution3(const char *output, long double time, int nsteps){
   ofstream aaa(output);
   long double stepx=(upperx-bottomx)/(numberx-1), stept=time/(nsteps-1);
 
-  //for(int i=0;i<numberx;++i)// writes initial condition
-    //aaa<<"0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
+  for(int i=0;i<numberx;++i)// writes initial condition
+    aaa<<"0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
 
   double **aux=new double*[5];// auxiliary vector
   for(int i=0;i<5;++i)aux[i]=new double[numberx+1];
 
-  for(int i=1;i<nsteps;++i){
+  for(int i=1;i<nsteps;++i){// runs evolution
 
-    for(int j=0;j<numberx;++j){
-
+    for(int j=0;j<numberx;++j){// calculates f(q) on grid
       long double *g=GetF(j);
       aux[0][j]=g[0];
       aux[1][j]=g[1];
@@ -163,49 +162,28 @@ void Fluid::Evolution3(const char *output, long double time, int nsteps){
       aux[4][j]=g[4];
 
     }
-    for(int j=0;j<numberx-1;++j){
-      double d0=(aux[0][j+1]-aux[0][j])/stepx;
-      double d1=(aux[1][j+1]-aux[1][j])/stepx;
-      double d2=(aux[2][j+1]-aux[2][j])/stepx;
-      double d3=(aux[3][j+1]-aux[3][j])/stepx;
-      double d4=(aux[4][j+1]-aux[4][j])/stepx;
-      aaa<<1<<"\t"<<j*stepx<<"\t"<<d0<<"\t"<<d1<<"\t"<<d2<<"\t"<<d3<<"\t"<<d4<<endl;
-    }
+
+    rho[0]   +=stept*(aux[0][1]-aux[0][0])/stepx;
+    rhou[0]  +=stept*(aux[1][1]-aux[1][0])/stepx;
+    rhov[0]  +=stept*(aux[2][1]-aux[2][0])/stepx;
+    rhow[0]  +=stept*(aux[3][1]-aux[3][0])/stepx;
+    Energy[0]+=stept*(aux[4][1]-aux[4][0])/stepx;
     for(int j=1;j<numberx-1;++j){
-      double d0=(aux[0][j+1]-aux[0][j-1])/(2*stepx);
-      double d1=(aux[1][j+1]-aux[1][j-1])/(2*stepx);
-      double d2=(aux[2][j+1]-aux[2][j-1])/(2*stepx);
-      double d3=(aux[3][j+1]-aux[3][j-1])/(2*stepx);
-      double d4=(aux[4][j+1]-aux[4][j-1])/(2*stepx);
-      aaa<<2<<"\t"<<j*stepx<<"\t"<<d0<<"\t"<<d1<<"\t"<<d2<<"\t"<<d3<<"\t"<<d4<<endl;
-    }
-    for(int j=2;j<numberx-2;++j){
-      double d0=(-aux[0][j+2]+8*aux[0][j+1]-8*aux[0][j-1]+aux[0][j-2])/(12*stepx);
-      double d1=(-aux[1][j+2]+8*aux[0][j+1]-8*aux[0][j-1]+aux[0][j-2])/(12*stepx);
-      double d2=(-aux[2][j+2]+8*aux[0][j+1]-8*aux[0][j-1]+aux[0][j-2])/(12*stepx);
-      double d3=(-aux[3][j+2]+8*aux[0][j+1]-8*aux[0][j-1]+aux[0][j-2])/(12*stepx);
-      double d4=(-aux[4][j+2]+8*aux[0][j+1]-8*aux[0][j-1]+aux[0][j-2])/(12*stepx);
-      aaa<<3<<"\t"<<j*stepx<<"\t"<<d0<<"\t"<<d1<<"\t"<<d2<<"\t"<<d3<<"\t"<<d4<<endl;
-    }
-
-/*
-    for(int j=0;j<numberx-1;++j){
-
-      rho[j]   +=stept*(aux[0][j+1]-aux[0][j])/stepx;
-      rhou[j]  +=stept*(aux[1][j+1]-aux[1][j])/stepx;
-      rhov[j]  +=stept*(aux[2][j+1]-aux[2][j])/stepx;
-      rhow[j]  +=stept*(aux[3][j+1]-aux[3][j])/stepx;
-      Energy[j]+=stept*(aux[4][j+1]-aux[4][j])/stepx;
-
+      rho[j]   +=stept*(aux[0][j+1]-aux[0][j-1])/(2*stepx);
+      rhou[j]  +=stept*(aux[1][j+1]-aux[1][j-1])/(2*stepx);
+      rhov[j]  +=stept*(aux[2][j+1]-aux[2][j-1])/(2*stepx);
+      rhow[j]  +=stept*(aux[3][j+1]-aux[3][j-1])/(2*stepx);
+      Energy[j]+=stept*(aux[4][j+1]-aux[4][j-1])/(2*stepx);
     }
     rho[numberx-1] +=stept*(aux[0][numberx-1]-aux[0][numberx-2])/stepx;
     rhou[numberx-1]+=stept*(aux[1][numberx-1]-aux[1][numberx-2])/stepx;
     rhov[numberx-1]+=stept*(aux[2][numberx-1]-aux[2][numberx-2])/stepx;
     rhow[numberx-1]+=stept*(aux[3][numberx-1]-aux[3][numberx-2])/stepx;
     Energy[numberx-1]+=stept*(aux[4][numberx-1]-aux[4][numberx-2])/stepx;
-    //for(int j=0;j<numberx;++j)
-      //aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
-*/
+
+    for(int j=0;j<numberx;++j)
+      aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
+
   }
 
 }
