@@ -143,6 +143,7 @@ void Fluid::Evolution3(const char *output, long double time, int nsteps){
  // writing the result into output, using optimal numeric method
 
   ofstream aaa(output);
+  aaa<<setprecision(10);
   long double stepx=(upperx-bottomx)/(numberx-1), stept=time/(nsteps-1);
 
   for(int i=0;i<numberx;++i)// writes initial condition
@@ -163,6 +164,23 @@ void Fluid::Evolution3(const char *output, long double time, int nsteps){
 
     }
 
+    for(int j=1;j<numberx-1;++j){
+      aaa<<1<<"\t"<<j*stepx<<"\t"<<flush;
+      aaa<<(aux[0][j+1]-aux[0][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[1][j+1]-aux[1][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[2][j+1]-aux[2][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[3][j+1]-aux[3][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[4][j+1]-aux[4][j-1])/(2*stepx)<<endl;
+    }
+    for(int j=1;j<numberx-1;++j){
+      aaa<<2<<"\t"<<j*stepx<<"\t"<<flush;
+      aaa<<(aux[0][j+1]-aux[0][j])/(stepx)<<"\t"<<flush;
+      aaa<<(aux[1][j+1]-aux[1][j])/(stepx)<<"\t"<<flush;
+      aaa<<(aux[2][j+1]-aux[2][j])/(stepx)<<"\t"<<flush;
+      aaa<<(aux[3][j+1]-aux[3][j])/(stepx)<<"\t"<<flush;
+      aaa<<(aux[4][j+1]-aux[4][j])/(stepx)<<endl;
+    }
+/*
     rho[0]   +=stept*(aux[0][1]-aux[0][0])/stepx;
     rhou[0]  +=stept*(aux[1][1]-aux[1][0])/stepx;
     rhov[0]  +=stept*(aux[2][1]-aux[2][0])/stepx;
@@ -180,9 +198,9 @@ void Fluid::Evolution3(const char *output, long double time, int nsteps){
     rhov[numberx-1]+=stept*(aux[2][numberx-1]-aux[2][numberx-2])/stepx;
     rhow[numberx-1]+=stept*(aux[3][numberx-1]-aux[3][numberx-2])/stepx;
     Energy[numberx-1]+=stept*(aux[4][numberx-1]-aux[4][numberx-2])/stepx;
-
-    for(int j=0;j<numberx;++j)
-      aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
+*/
+    //for(int j=0;j<numberx;++j)
+      //aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
 
   }
 
