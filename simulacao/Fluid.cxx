@@ -147,6 +147,7 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
   double **aux=new double*[5];// auxiliary vector
   for(int i=0;i<5;++i)aux[i]=new double[numberx+1];
 
+  int up=clock();
   for(int i=1;i<nsteps;++i){// runs evolution
 
     for(int j=0;j<numberx;++j){// calculates f(q) on grid
@@ -158,25 +159,6 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
       aux[4][j]=g[4];
 
     }
-
-  for(int j=0;j<numberx;++j){
-    ld a1, a2, a3, a4, a5;
-    a1=(aux[0][j+1]-aux[0][j-1])/(2*stepx);
-    a2=(aux[1][j+1]-aux[1][j-1])/(2*stepx);
-    a3=(aux[2][j+1]-aux[2][j-1])/(2*stepx);
-    a4=(aux[3][j+1]-aux[3][j-1])/(2*stepx);
-    a5=(aux[4][j+1]-aux[4][j-1])/(2*stepx);
-    aaa<<2<<"\t"<<j*stepx<<"\t"<<a1<<"\t"<<a2<<"\t"<<a3<<"\t"<<a4<<"\t"<<a5<<endl;
-  }
-  for(int j=0;j<numberx;++j){
-    ld a1, a2, a3, a4, a5;
-    a1=(aux[0][j+1]-aux[0][j])/(stepx);
-    a2=(aux[1][j+1]-aux[1][j])/(stepx);
-    a3=(aux[2][j+1]-aux[2][j])/(stepx);
-    a4=(aux[3][j+1]-aux[3][j])/(stepx);
-    a5=(aux[4][j+1]-aux[4][j])/(stepx);
-    aaa<<1<<"\t"<<j*stepx<<"\t"<<a1<<"\t"<<a2<<"\t"<<a3<<"\t"<<a4<<"\t"<<a5<<endl;
-  }
 
     rho[0]   +=stept*(aux[0][1]-aux[0][0])/stepx;
     rhou[0]  +=stept*(aux[1][1]-aux[1][0])/stepx;
@@ -200,6 +182,8 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
       //aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
 
   }
+  int down=clock();
+  cout<<((double)(down-up))/CLOCKS_PER_SEC<<endl;
 
 }
 

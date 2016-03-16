@@ -2,7 +2,7 @@
 
 int main(){
 
-  int n=5000;double stepx=50./(n-1);
+  int n=10;double stepx=50./(n-1);
   Fluid Air(1.4,n,0,50);
 
   ld *a=new ld[n];for(int i=0;i<n;++i)a[i]=1.2754;

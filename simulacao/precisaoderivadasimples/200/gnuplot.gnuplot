@@ -16,10 +16,12 @@ set output "metodo2a_200.png"
 plot "evolution3_200.run" u 2:($1==2?$4:1/0), g(x)
 
 set ylabel "dp/dx (Pa/m)"
-set yrange [0:125]
+set yrange [0:2.5]
 
 set output "metodo1b_200.png"
 plot "evolution3_200.run" u 2:($1==1?$4/g($2):1/0)
+
+set yrange [.9:1.1]
 
 set output "metodo2b_200.png"
 plot "evolution3_200.run" u 2:($1==2?$4/g($2):1/0)

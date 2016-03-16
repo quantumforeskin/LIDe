@@ -22,6 +22,8 @@ set yrange [0:5]
 set output "metodo1b_50.png"
 plot "evolution3_50.run" u 2:($1==1?$4/g($2):1/0)
 
+set yrange [0.8:2.6]
+
 set output "metodo2b_50.png"
 plot "evolution3_50.run" u 2:($1==2?$4/g($2):1/0)
 
