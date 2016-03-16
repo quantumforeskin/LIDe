@@ -141,8 +141,8 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
   ofstream aaa(output);
   ld stepx=(upperx-bottomx)/(numberx-1), stept=time/(nsteps-1);
 
-  for(int i=0;i<numberx;++i)// writes initial condition
-    aaa<<"0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
+  //for(int i=0;i<numberx;++i)// writes initial condition
+    //aaa<<"0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
 
   double **aux=new double*[5];// auxiliary vector
   for(int i=0;i<5;++i)aux[i]=new double[numberx+1];
@@ -158,6 +158,14 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
       aux[3][j]=g[3];
       aux[4][j]=g[4];
 
+    }
+
+    for(int j=1;j<numberx-1;++j){
+      aaa<<stept*(aux[0][j+1]-aux[0][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<stept*(aux[1][j+1]-aux[1][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<stept*(aux[2][j+1]-aux[2][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<stept*(aux[3][j+1]-aux[3][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<stept*(aux[4][j+1]-aux[4][j-1])/(2*stepx)<<endl;
     }
 
     rho[0]   +=stept*(aux[0][1]-aux[0][0])/stepx;
