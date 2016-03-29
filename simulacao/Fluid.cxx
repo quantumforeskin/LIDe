@@ -141,9 +141,11 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
   ofstream aaa(output);
   ld stepx=(upperx-bottomx)/(numberx-1), stept=time/(nsteps-1);
 
-  aaa<<"0\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
-  for(int i=1;i<numberx;++i)if(fabs(Energy[i]-Energy[i-1])<0.01)// writes initial condition
-    aaa<<"0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
+  // writes initial condition
+  aaa<<"0\t0\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
+  for(int i=1;i<numberx-1;++i)if(fabs(Energy[i]-Energy[i-1])>1||fabs(rho[i]-rho[i-1])>1e-3||fabs(rhou[i]-rhou[i-1])>0.1)
+    aaa<<"0\t0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
+  aaa<<"0\t0\t"<<(numberx-1)*stepx<<"\t"<<rho[numberx-1]<<"\t"<<rhou[numberx-1]<<"\t"<<rhov[numberx-1]<<"\t"<<rhow[numberx-1]<<"\t"<<Energy[numberx-1]<<"\t"<<Pressure(numberx-1)<<endl;
 
   double **aux=new double*[5];// auxiliary vector
   for(int i=0;i<5;++i)aux[i]=new double[numberx+1];
@@ -158,16 +160,18 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
       aux[2][j]=g[2];
       aux[3][j]=g[3];
       aux[4][j]=g[4];
-
     }
 
-    for(int j=1;j<numberx-1;++j){
-      aaa<<stept*(aux[0][j+1]-aux[0][j-1])/(2*stepx)<<"\t"<<flush;
-      aaa<<stept*(aux[1][j+1]-aux[1][j-1])/(2*stepx)<<"\t"<<flush;
-      aaa<<stept*(aux[2][j+1]-aux[2][j-1])/(2*stepx)<<"\t"<<flush;
-      aaa<<stept*(aux[3][j+1]-aux[3][j-1])/(2*stepx)<<"\t"<<flush;
-      aaa<<stept*(aux[4][j+1]-aux[4][j-1])/(2*stepx)<<endl;
+/*
+    for(int j=1;j<numberx-1;++j)if(fabs(Energy[j]-Energy[j-1])>1||fabs(rho[j]-rho[j-1])>1e-3||fabs(rhou[j]-rhou[j-1])>0.1){
+      aaa<<j*stepx-29700<<"\t"<<flush;
+      aaa<<(aux[0][j+1]-aux[0][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[1][j+1]-aux[1][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[2][j+1]-aux[2][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[3][j+1]-aux[3][j-1])/(2*stepx)<<"\t"<<flush;
+      aaa<<(aux[4][j+1]-aux[4][j-1])/(2*stepx)<<endl;
     }
+*/
 
     rho[0]   +=stept*(aux[0][1]-aux[0][0])/stepx;
     rhou[0]  +=stept*(aux[1][1]-aux[1][0])/stepx;
@@ -187,8 +191,11 @@ void Fluid::Evolution3(const char *output, ld time, int nsteps){
     rhow[numberx-1]  +=stept*(aux[3][numberx-1]-aux[3][numberx-2])/stepx;
     Energy[numberx-1]+=stept*(aux[4][numberx-1]-aux[4][numberx-2])/stepx;
 
-    //for(int j=0;j<numberx;++j)
-      //aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
+    aaa<<i<<"\t"<<i*stept<<"\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
+    for(int j=0;j<numberx;++j)if(fabs(Energy[j]-Energy[j-1])>1||fabs(rho[j]-rho[j-1])>1e-3||fabs(rhou[j]-rhou[j-1])>0.1)
+      aaa<<i<<"\t"<<i*stept<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
+    aaa<<i<<"\t"<<i*stept<<"\t"<<numberx*stepx-stepx<<"\t"<<rho[numberx-1]<<"\t"<<rhou[numberx-1]<<"\t"<<rhov[numberx-1]<<"\t"<<rhow[numberx-1]<<"\t"<<Energy[numberx-1]<<"\t"<<Pressure(numberx-1)<<endl;
+    cout<<i<<" "<<nsteps<<endl;
 
   }
   int down=clock();
