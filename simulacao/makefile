@@ -1,3 +1,3 @@
 all:
-	nvcc run.cxx Fluid.cxx # Fluid.cu
+	g++ -o a.exe run.cxx Fluid.cxx
 

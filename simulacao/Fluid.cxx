@@ -242,6 +242,38 @@ ld Fluid::Pressure(int ix) const {
 }
 
 //___________________________________________________________
+ld* Fluid::GetRoeAverage(int ix) const {
+
+ // returns roe average at cell ix
+
+  double pl=rho[ix],      pr=rho[ix+1];
+  double ul=rhou[ix]/pl,  ur=rhou[ix+1]/pr;
+  double vl=rhov[ix]/pl,  vr=rhov[ix+1]/pr;
+  double wl=rhow[ix]/pl,  wr=rhow[ix+1]/pr;
+  double el=Energy[ix],   er=Energy[ix+1];
+  double Pl=Pressure(ix), Pr=Pressure(ix+1);
+  double spl=sqrt(pl),    spr=sqrt(pr);
+
+  ld *Q=new ld[5];
+  Q[0]=(pl+pr)/2;
+  Q[1]=(spl*ul+spr*ur)/(spl+spr);
+  Q[2]=(spl*vl+spr*vr)/(spl+spr);
+  Q[3]=(spl*wl+spr*wr)/(spl+spr);
+  Q[4]=((el+Pl)/spl+(er+Pr)/spr)/(spl+spr);
+
+  return Q;
+
+}
+
+//___________________________________________________________
+ld* Fluid::GetLambda(ld *Q) const {
+
+ // returns eigenvalues with roe average Q
+
+  double u=Q[1], p=Q[0], 
+}
+
+//___________________________________________________________
 ld* Fluid::GetEnergy() const {
 
  // returns energy
