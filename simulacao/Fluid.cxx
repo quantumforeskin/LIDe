@@ -50,24 +50,25 @@ void Fluid::Evolution1(const char *output, ld time, int nsteps){
 
   ofstream aaa(output);
   ld stept=time/(nsteps-1), stepx=(upperx-bottomx)/(numberx-1);
-
+/*
   for(int i=0;i<numberx;++i)// writes initial condition
     aaa<<"0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
-
+*/
   ld **aux=new ld*[5];
   for(int i=0;i<5;++i)aux[i]=new ld[numberx];
 
   for(int i=1;i<nsteps;++i){// runs evolution in time
-
     for(int j=0;j<numberx;++j){// calculates evolution in the spacial grid
 
-      ld *f1=GetF(j-1), *f2=GetF(j+1);
+      ld *f1=GetF(j), *f2=GetF(j+1);
 
       aux[0][j]=rho[j]   -stept/stepx*(f1[0]-f2[0]);
       aux[1][j]=rhou[j]  -stept/stepx*(f1[1]-f2[1]);
       aux[2][j]=rhov[j]  -stept/stepx*(f1[2]-f2[2]);
       aux[3][j]=rhow[j]  -stept/stepx*(f1[3]-f2[3]);
       aux[4][j]=Energy[j]-stept/stepx*(f1[4]-f2[4]);
+
+      aaa<<j*stepx<<"\t"<<(f2[1]-f1[1])/stepx<<endl;
 
     }
 
@@ -78,10 +79,10 @@ void Fluid::Evolution1(const char *output, ld time, int nsteps){
       rhow[j]  =aux[3][j];
       Energy[j]=aux[4][j];
     }
-
+/*
     for(int j=0;j<numberx;++j)// writes output into file
       aaa<<i<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
-
+*/
   }
 
 }
@@ -94,13 +95,13 @@ void Fluid::Evolution2(const char *output, ld time, int nsteps){
 
   ofstream aaa(output);
   ld stepx=(upperx-bottomx)/(numberx-1), stept=time/(nsteps-1);
-
+/*
   // writes initial condition
   aaa<<"0\t0\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
   for(int i=1;i<numberx-1;++i)if(fabs(Energy[i]-Energy[i-1])>1||fabs(rho[i]-rho[i-1])>1e-3||fabs(rhou[i]-rhou[i-1])>0.1)
     aaa<<"0\t0\t"<<i*stepx<<"\t"<<rho[i]<<"\t"<<rhou[i]<<"\t"<<rhov[i]<<"\t"<<rhow[i]<<"\t"<<Energy[i]<<"\t"<<Pressure(i)<<endl;
   aaa<<"0\t0\t"<<(numberx-1)*stepx<<"\t"<<rho[numberx-1]<<"\t"<<rhou[numberx-1]<<"\t"<<rhov[numberx-1]<<"\t"<<rhow[numberx-1]<<"\t"<<Energy[numberx-1]<<"\t"<<Pressure(numberx-1)<<endl;
-
+*/
   double **aux=new double*[5];// auxiliary vector
   for(int i=0;i<5;++i)aux[i]=new double[numberx+1];
 
@@ -127,22 +128,34 @@ void Fluid::Evolution2(const char *output, ld time, int nsteps){
       rhov[j]  +=stept*(aux[2][j+1]-aux[2][j-1])/(2*stepx);
       rhow[j]  +=stept*(aux[3][j+1]-aux[3][j-1])/(2*stepx);
       Energy[j]+=stept*(aux[4][j+1]-aux[4][j-1])/(2*stepx);
+      if(rho[j]<0.05)rho[j]=0.05;
+      if(Pressure(j)<0.05)Energy[j]=(rhou[j]*rhou[j]+rhov[j]*rhov[j]+rhow[j]*rhow[j])/(2*rho[j])+0.05/(addiabatic-1);
     }
     rho[numberx-1]   +=stept*(aux[0][numberx-1]-aux[0][numberx-2])/stepx;
     rhou[numberx-1]  +=stept*(aux[1][numberx-1]-aux[1][numberx-2])/stepx;
     rhov[numberx-1]  +=stept*(aux[2][numberx-1]-aux[2][numberx-2])/stepx;
     rhow[numberx-1]  +=stept*(aux[3][numberx-1]-aux[3][numberx-2])/stepx;
     Energy[numberx-1]+=stept*(aux[4][numberx-1]-aux[4][numberx-2])/stepx;
-
-    aaa<<i<<"\t"<<i*stept<<"\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
-    for(int j=0;j<numberx;++j)if(fabs(Energy[j]-Energy[j-1])>1||fabs(rho[j]-rho[j-1])>1e-3||fabs(rhou[j]-rhou[j-1])>0.1)
-      aaa<<i<<"\t"<<i*stept<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
-    aaa<<i<<"\t"<<i*stept<<"\t"<<numberx*stepx-stepx<<"\t"<<rho[numberx-1]<<"\t"<<rhou[numberx-1]<<"\t"<<rhov[numberx-1]<<"\t"<<rhow[numberx-1]<<"\t"<<Energy[numberx-1]<<"\t"<<Pressure(numberx-1)<<endl;
-    //cout<<i<<" "<<nsteps<<endl;
-
+/*
+    if(nsteps>50){
+      int avb=nsteps/50;
+      if(i%avb==0){
+        aaa<<i<<"\t"<<i*stept<<"\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
+        for(int j=0;j<numberx;++j)if(fabs(Energy[j]-Energy[j-1])>1||fabs(rho[j]-rho[j-1])>1e-3||fabs(rhou[j]-rhou[j-1])>0.1)
+          aaa<<i<<"\t"<<i*stept<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
+        aaa<<i<<"\t"<<i*stept<<"\t"<<numberx*stepx-stepx<<"\t"<<rho[numberx-1]<<"\t"<<rhou[numberx-1]<<"\t"<<rhov[numberx-1]<<"\t"<<rhow[numberx-1]<<"\t"<<Energy[numberx-1]<<"\t"<<Pressure(numberx-1)<<endl;
+      }
+    }
+    else {
+      aaa<<i<<"\t"<<i*stept<<"\t0\t"<<rho[0]<<"\t"<<rhou[0]<<"\t"<<rhov[0]<<"\t"<<rhow[0]<<"\t"<<Energy[0]<<"\t"<<Pressure(0)<<endl;
+      for(int j=0;j<numberx;++j)if(fabs(Energy[j]-Energy[j-1])>1||fabs(rho[j]-rho[j-1])>1e-3||fabs(rhou[j]-rhou[j-1])>0.1)
+        aaa<<i<<"\t"<<i*stept<<"\t"<<j*stepx<<"\t"<<rho[j]<<"\t"<<rhou[j]<<"\t"<<rhov[j]<<"\t"<<rhow[j]<<"\t"<<Energy[j]<<"\t"<<Pressure(j)<<endl;
+      aaa<<i<<"\t"<<i*stept<<"\t"<<numberx*stepx-stepx<<"\t"<<rho[numberx-1]<<"\t"<<rhou[numberx-1]<<"\t"<<rhov[numberx-1]<<"\t"<<rhow[numberx-1]<<"\t"<<Energy[numberx-1]<<"\t"<<Pressure(numberx-1)<<endl;
+    }
+*/
   }
   int down=clock();
-  cout<<((double)(down-up))/CLOCKS_PER_SEC<<endl;
+  //cout<<((double)(down-up))/CLOCKS_PER_SEC<<endl;
 
 }
 

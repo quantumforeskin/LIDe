@@ -1,5 +1,15 @@
-#include"Fluid.h"
-#include<ctime>
+#include<iostream>
+#include<cstdlib>
+#include<cstdio>
+#include<cmath>
+using namespace std;
+
+double fff(double x){
+
+  double a=-18./200*(1.4-1)*2.29e12/sqrt(200*M_PI/9);
+  return a*(x-50)*exp(-9./200*pow(x-50,2));
+  
+}
 
 int main(){
 
@@ -19,20 +29,20 @@ C[15]="10000.run";  C[16]="20000.run";  C[17]="30000.run";  C[18]="50000.run";  
 C[20]="100000.run"; C[21]="200000.run"; C[22]="300000.run"; C[23]="500000.run"; C[24]="750000.run";
 C[25]="1000000.run";C[26]="2000000.run";C[27]="3000000.run";C[28]="5000000.run";C[29]="7500000.run";
 
-for(int j=0;j<20;++j){
-  int n=N[j];
-  double stepx=100./(n-1);
-  Fluid Air(1.4,n,0,100);
-
-  ld *a=new ld[n];for(int i=0;i<n;++i)a[i]=1.2754;
-  ld *c=new ld[n];for(int i=0;i<n;++i)c[i]=2.5e5+2.29e12/sqrt(200*M_PI/9)*exp(-9./200*pow(i*stepx-50,2));
-
-  Air.SetRho(a);Air.SetEnergy(c);
-  int aaa=clock();
-  Air.Evolution2(C[j],1e-4,30);
-  int bbb=clock();
-  cout<<N[j]<<"\t"<<((double)bbb-aaa)/((double)CLOCKS_PER_SEC)<<endl;
+for(int j=0;j<30;++j){
+  FILE *aaa=fopen(C[j],"r+");
+  double *x=new double[N[j]];
+  double *y=new double[N[j]];
+  for(int i=0;i<N[j];++i){
+    fscanf(aaa,"%lf",&x[i]);
+    fscanf(aaa,"%lf",&y[i]);
+  }
+  double chi=0;int u=0;
+  for(int i=0;i<N[j];++i)if(y[i]>1){
+    double teor=fff(x[i]);++u;
+    chi+=pow((teor-y[i])/y[i],2);
+  }
+  cout<<N[j]<<"\t"<<chi/u<<endl;
 }
-
 }
 
