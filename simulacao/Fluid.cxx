@@ -246,20 +246,20 @@ ld* Fluid::GetRoeAverage(int ix) const {
 
  // returns roe average at cell ix
 
-  double pl=rho[ix],      pr=rho[ix+1];
-  double ul=rhou[ix]/pl,  ur=rhou[ix+1]/pr;
-  double vl=rhov[ix]/pl,  vr=rhov[ix+1]/pr;
-  double wl=rhow[ix]/pl,  wr=rhow[ix+1]/pr;
-  double el=Energy[ix],   er=Energy[ix+1];
-  double Pl=Pressure(ix), Pr=Pressure(ix+1);
-  double spl=sqrt(pl),    spr=sqrt(pr);
+  ld pl=rho[ix],      pr=rho[ix+1];
+  ld ul=rhou[ix]/pl,  ur=rhou[ix+1]/pr;
+  ld vl=rhov[ix]/pl,  vr=rhov[ix+1]/pr;
+  ld wl=rhow[ix]/pl,  wr=rhow[ix+1]/pr;
+  ld el=Energy[ix],   er=Energy[ix+1];
+  ld Pl=Pressure(ix), Pr=Pressure(ix+1);
+  ld spl=sqrt(pl),    spr=sqrt(pr);
 
   ld *Q=new ld[5];
   Q[0]=(pl+pr)/2;
   Q[1]=(spl*ul+spr*ur)/(spl+spr);
   Q[2]=(spl*vl+spr*vr)/(spl+spr);
   Q[3]=(spl*wl+spr*wr)/(spl+spr);
-  Q[4]=((el+Pl)/spl+(er+Pr)/spr)/(spl+spr);
+  Q[4]=(el/spl+er/spr)/(spl+spr);
 
   return Q;
 
@@ -270,7 +270,188 @@ ld* Fluid::GetLambda(ld *Q) const {
 
  // returns eigenvalues with roe average Q
 
-  double u=Q[1], p=Q[0], 
+  ld p=Q[0], u=Q[1], e=Q[4];
+  ld press=(addiabatic-1)*(e-p*u*u/2);
+
+  ld c=sqrt(addiabatic*press/p);
+
+  ld *lambda=new ld[5];
+  lambda[0]=u-c;
+  lambda[1]=u;
+  lambda[2]=u;
+  lambda[3]=u;
+  lambda[4]=u+c;
+
+  return lambda;
+
+}
+
+//___________________________________________________________
+ld** Fluid::GetEigenVectors(ld *Q) const {
+
+ // returns eigenvector with roe average Q
+
+  ld p=Q[0], u=Q[1], v=Q[2], w=Q[3], e=Q[4];
+  ld press=(addiabatic-1)*(e-p*u*u/2);
+  ld H=(e+press)/p, c=sqrt(addiabatic*press/p);
+
+  ld **eigenvector=new ld*[5];
+  for(int i=0;i<5;++i)eigenvector[i]=new ld[5];
+
+  eigenvector[0][0]=1;
+  eigenvector[0][1]=u-c;
+  eigenvector[0][2]=v;
+  eigenvector[0][3]=w;
+  eigenvector[0][4]=H-uc;
+
+  eigenvector[1][0]=1;
+  eigenvector[1][1]=u;
+  eigenvector[1][2]=v;
+  eigenvector[1][3]=w;
+  eigenvector[1][4]=(u*u+v*v+w*w)/2;
+
+  eigenvector[2][0]=0;
+  eigenvector[2][1]=0;
+  eigenvector[2][2]=1;
+  eigenvector[2][3]=0;
+  eigenvector[2][4]=v;
+
+  eigenvector[3][0]=0;
+  eigenvector[3][1]=0;
+  eigenvector[3][2]=0;
+  eigenvector[3][3]=1;
+  eigenvector[3][4]=w;
+
+  eigenvector[4][0]=1;
+  eigenvector[4][1]=u+c;
+  eigenvector[4][2]=v;
+  eigenvector[4][3]=w;
+  eigenvector[4][4]=H-uc;
+
+  return eigenvector;
+
+}
+
+//___________________________________________________________
+ld** Fluid::GetEigenVectors(ld *Q) const {
+
+ // returns eigenvector with roe average Q
+
+  ld p=Q[0], u=Q[1], v=Q[2], w=Q[3], e=Q[4];
+  ld press=(addiabatic-1)*(e-p*u*u/2);
+  ld H=(e+press)/p, c=sqrt(addiabatic*press/p);
+
+  ld **eigenvector=new ld*[5];
+  for(int i=0;i<5;++i)eigenvector[i]=new ld[5];
+
+  eigenvector[0][0]=(u*(u+3*c)-2*H)/(u*(u+2*c)-2*H)*u/(2*c);
+  eigenvector[0][1]=-1./(2*c);
+  eigenvector[0][2]=0;
+  eigenvector[0][3]=0;
+  eigenvector[0][4]=1./(2*H-u*(u+2*c));
+
+  eigenvector[1][0]=2*(c*u-H)/(u*(u+2*c)-2*H);
+  eigenvector[1][1]=0;
+  eigenvector[1][2]=0;
+  eigenvector[1][3]=0;
+  eigenvector[1][4]=2./(u*(u+2*c)-2*H);
+
+  eigenvector[2][0]=0;
+  eigenvector[2][1]=0;
+  eigenvector[2][2]=1;
+  eigenvector[2][3]=0;
+  eigenvector[2][4]=0;
+
+  eigenvector[3][0]=0;
+  eigenvector[3][1]=0;
+  eigenvector[3][2]=0;
+  eigenvector[3][3]=1;
+  eigenvector[3][4]=0;
+
+  eigenvector[4][0]=-(u*(c+u)-2*H)/(u*(2*c+u)-2*H)*u/(2*c);
+  eigenvector[4][1]=1./(2*c);
+  eigenvector[4][2]=0;
+  eigenvector[4][3]=0;
+  eigenvector[4][4]=1./(2*H-u*(2*c+u));
+
+  return eigenvector;
+
+}
+
+//___________________________________________________________
+ld* Fluid::GetAlpha(ld *DeltaQ, ld **InvR){
+
+ // returns wave coefficients
+
+  ld *alpha=new ld[5];
+
+  for(int i=0;i<5;++i)for(int j=0;j<5;++j)
+    alpha[i][j]=0;
+
+  for(int i=0;i<5;++i)for(int j=0;j<5;++j)
+    alpha[i]+=InvR[i][j]*DeltaQ[j];
+
+  return alpha;
+
+}
+
+//___________________________________________________________
+ld **Fluid::GetWaves(ld **R, ld **alpha){
+
+ // returns propagating waves
+
+  ld **waves=new ld*[5];
+  for(int i=0;i<5;++i)waves[i]=new ld[5];
+
+  for(int i=0;i<5;++i)for(int j=0;j<5;++j)
+    waves[i][j]=alpha[i]*R[i][j];
+
+  return waves;
+
+}
+
+//___________________________________________________________
+ld* Fluid::GetF-(ld *lambda, **waves){
+
+ // returns backwards flux
+
+  int u=0;
+  for(int i=0;i<5;++i)if(lambda[i]<0)u=i;
+
+  ld *F=new ld[5];
+  for(int i=0;i<5;++i)F[i]=0;  
+
+  for(int i=0;i<u;++i){
+    F[0]=lambda[i]*waves[i][0];
+    F[1]=lambda[i]*waves[i][1];
+    F[2]=lambda[i]*waves[i][2];
+    F[3]=lambda[i]*waves[i][3];
+    F[4]=lambda[i]*waves[i][4];
+  }
+
+  return F;
+}
+
+//___________________________________________________________
+ld* Fluid::GetF+(ld *lambda, **waves){
+
+ // returns forward flux
+
+  int u=0;
+  for(int i=0;i<5;++i)if(lambda[i]<0)u=i;
+
+  ld *F=new ld[5];
+  for(int i=0;i<5;++i)F[i]=0;  
+
+  for(int i=u+1;i<5;++i){
+    F[0]=lambda[i]*waves[i][0];
+    F[1]=lambda[i]*waves[i][1];
+    F[2]=lambda[i]*waves[i][2];
+    F[3]=lambda[i]*waves[i][3];
+    F[4]=lambda[i]*waves[i][4];
+  }
+
+  return F;
 }
 
 //___________________________________________________________
